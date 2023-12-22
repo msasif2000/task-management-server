@@ -32,7 +32,8 @@ dbConnect()
 
 const userCollection = client.db("taskManagementDB").collection("users");
 const tasksCollection = client.db("taskManagementDB").collection("tasks");
-
+const ongoingTasksCollection = client.db("taskManagementDB").collection("ongoingTasks");
+const prevTasksCollection = client.db("taskManagementDB").collection("prevTasks");
 
 app.get('/', (req, res) => {
     res.send('TASK MANAGEMENT WEBSITE!');
@@ -46,6 +47,13 @@ app.post('/users',  async (req, res) => {
         return res.send({ message: 'User already exists' });
     }
     const result = await userCollection.insertOne(user);
+    res.send(result);
+})
+
+app.get('/user/:email', async(req, res) => {
+    const email = req.params.email;
+    const query = { email: email };
+    const result = await userCollection.findOne(query);
     res.send(result);
 })
 
@@ -98,6 +106,47 @@ app.put('/updateTask/:id', async(req, res) => {
         },
     };
     const result = await tasksCollection.updateOne(query, updateDoc);
+    res.send(result);
+})
+
+app.post('/ongoingTask',  async(req, res) => {
+    const task = req.body;
+    const result = await ongoingTasksCollection.insertOne(task);
+    res.send(result);
+})
+
+app.get('/ongoingTasks/:email', async(req, res)=>
+{
+    const email = req.params.email;
+    const query = { email: email};
+    const result = await ongoingTasksCollection.find(query).toArray();
+    res.send(result);
+})
+
+app.get('/myOngoingTask/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = { _id: id};
+    const result = await ongoingTasksCollection.findOne(query);
+    res.send(result);
+})
+
+app.delete('/deleteOngoingTask/:id', async(req, res)=>{
+    const id = req.params.id;
+    const query = { _id: id};
+    const result = await ongoingTasksCollection.deleteOne(query);
+    res.send(result);
+})
+
+app.post('/prevTask',  async(req, res) => {
+    const task = req.body;
+    const result = await prevTasksCollection.insertOne(task);
+    res.send(result);
+})
+
+app.get('/prevTasks/:email', async(req, res)=>{
+    const email = req.params.email;
+    const query = { email: email};
+    const result = await prevTasksCollection.find(query).toArray();
     res.send(result);
 })
 
